@@ -7,7 +7,7 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
         .container {
-            background-color: #fcffe8;
+            background-color: #e6ebeb;
         }
 
         .inputs {
@@ -16,14 +16,26 @@
         }
 
         .row {
+            padding: 10px 0;
             border: solid #2d2f48 2px;
-            border-radius: 10px;
+            border-radius: 15px;
             text-align: center;
         }
 
         table {
-            margin-top: 50px;
+            margin-top: 30px;
         }
+
+        .result {
+            color: #182767;
+            font-size: 24px;
+            margin: 5px 0 0 30px;
+            padding: 3px 20px;
+            border-radius: 8px;
+            border: #174983 solid 2px;
+            background-color: #edfffc;
+        }
+
     </style>
 </head>
 <body>
@@ -48,7 +60,7 @@
                 {% csrf_token %}
 
                 <span class="inputs">
-                    <label for="from">Convert</label>
+                    <label for="number">Convert</label>
                     <input type="text" name="number" id="number" class="inputs">
                         <select name="select_from" id="select_from">
                             {% for val in iso %}
@@ -58,7 +70,7 @@
                 </span>
 
                 <span class="inputs">
-                <label for="to">to</label>
+                <label for="select_to">to</label>
                     <select name="select_to" id="select_to">
                         {% for val in iso %}
                             <option value="{{ val }}"> {{ val }}</option>
@@ -70,9 +82,11 @@
                 {# <a id="convert" href="/convert" class="btn btn-success">Convert</a> >#}
             </form>
 
-            <span id="convert_value " class="inputs">
-                {{ convert_value }}
-            </span>
+            {% if convert_value != '' %}
+                <span id="convert_value" class="result">
+                    {{ convert_value }}
+                </span>
+            {% endif %}
 
             {% if not data is None %}
                 <table class="table thead-dark">
