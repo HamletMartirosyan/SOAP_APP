@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from datetime import datetime
-from zeep import Client
 from .models import Exchange
+from zeep import Client
 
 
 def str_to_dict(string):
@@ -71,7 +71,6 @@ def exchange_rates_by_date(request):
 
         elif request.POST.get('number'):
             post = request.POST
-            print("=========================================== START =================================================")
             query = Exchange.objects.last()
 
             date = query.date
@@ -91,6 +90,7 @@ def exchange_rates_by_date(request):
 
             number = post.get('number')
 
+            print("=========================================== START =================================================")
             print(f'num = {number}')
             print(f'iso_from = {iso_from}')
             print(f'iso_to = {iso_to}')
@@ -98,10 +98,10 @@ def exchange_rates_by_date(request):
             print(f'amount_to = {amount_to}')
             print(f'rate_from = {rate_from}')
             print(f'rate_to = {rate_to}')
+            print("================================================ END ==============================================")
 
             convert_value = convert_money(number, rate_from, amount_from, rate_to, amount_to)
 
-            print("================================================ END ==============================================")
 
     context = {
         'date': date,
