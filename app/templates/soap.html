@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SOAP</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .container {
+            background-color: #fcffe8;
+        }
+
+        .inputs {
+            padding: 2px 5px;
+            margin: 15px 25px;
+        }
+
+        .row {
+            border: solid #2d2f48 2px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        table {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <form method="post" name="get_data">
+            {% csrf_token %}
+
+            <span class="inputs">
+                <label for="date">Enter date</label>
+                <input type="date" value="{{ date }}" name="date" id="date">
+            </span>
+            <span class="inputs">
+                <input type="submit" value="Get values" id="get_values" class="btn btn-primary">
+            </span>
+        </form>
+    </div>
+
+    {% if not iso|length == 0 %}
+        <div class="row">
+            <form method="post" name="convert_form">
+                {% csrf_token %}
+
+                <span class="inputs">
+                    <label for="from">Convert</label>
+                    <input type="text" name="number" id="number" class="inputs">
+                        <select name="select_from" id="select_from">
+                            {% for val in iso %}
+                                <option value="{{ val }}"> {{ val }}</option>
+                            {% endfor %}
+                        </select>
+                </span>
+
+                <span class="inputs">
+                <label for="to">to</label>
+                    <select name="select_to" id="select_to">
+                        {% for val in iso %}
+                            <option value="{{ val }}"> {{ val }}</option>
+                        {% endfor %}
+                    </select>
+                </span>
+                <input type="submit" id="convert" class="btn btn-success" value="Convert">
+
+                {# <a id="convert" href="/convert" class="btn btn-success">Convert</a> >#}
+            </form>
+
+            <span id="convert_value " class="inputs">
+                {{ convert_value }}
+            </span>
+
+            {% if not data is None %}
+                <table class="table thead-dark">
+                    <tr class="thead-dark">
+                        <th scope="col">ISO</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Rate</th>
+                        <th scope="col">Difference</th>
+                    </tr>
+                    {% for val in data.values %}
+                        <tr>
+                            <td>{{ val.ISO }}</td>
+                            <td>{{ val.Amount }}</td>
+                            <td>{{ val.Rate }}</td>
+                            <td>{{ val.Difference }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+
+<script type="application/javascript">
+    /*
+    $(document).ready(function () {
+        function ajax_submit() {
+            
+        }
+    })
+    */
+
+    /*    function Convert(value, rate1, amount1, rate2, amount2) {
+            var r1 = rate1 / amount1;
+            var r2 = rate2 / amount2;
+            if (rate2 !== 0) {
+                console.log('convert_value' + convert_value);
+                var result = value * r1 / r2;
+            }
+            else {
+                var result = "Rate_2 is 0.0000";
+            }
+            return result;
+        }
+
+        function Convert_rate() {
+            from = document.getElementById('from');
+
+            convert_value = document.getElementById('convert_value ');
+            convert_value.innerText = Convert();
+
+        }
+    */
+</script>
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
