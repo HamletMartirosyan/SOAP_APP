@@ -102,7 +102,6 @@ def exchange_rates_by_date(request):
 
             convert_value = convert_money(number, rate_from, amount_from, rate_to, amount_to)
 
-
     context = {
         'date': date,
         'data': data,
