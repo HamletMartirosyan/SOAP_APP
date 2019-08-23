@@ -29,7 +29,19 @@ def convert_money(value, rate1, amount1, rate2, amount2):
         return "Rate_2 is 0.0000"
 
 
-def exchange_rates_by_date(request):
+def money_converter(count, rate, amount):
+    count = float(count)
+    rate = float(rate)
+    amount = float(amount)
+    print(f'\n\ncount ={count}\n\nRate = {rate}, Amount = {amount} \n\n')
+
+    num = rate / amount
+    result = round(count * num, 2)
+
+    return result
+
+
+def exchange_rates_by_date(request):  #
     date = datetime.now().strftime('%Y-%m-%d')
     iso = []
     amount = {}
@@ -37,7 +49,7 @@ def exchange_rates_by_date(request):
     rate = {}
     difference = {}
     convert_value = ''
-    number = ''
+    count = ''
 
     # data = Exchange.objects.last()
     # iso = data.iso
@@ -67,7 +79,7 @@ def exchange_rates_by_date(request):
             exchange = Exchange(iso=iso, amount=amount, rate=rate, difference=difference, date=date)
             exchange.save()
 
-        elif request.POST.get('number'):
+        elif request.POST.get('count'):
             query = Exchange.objects.last()
 
             iso = str(query.iso[1:-1]).replace("'", "").split(', ')
@@ -81,28 +93,27 @@ def exchange_rates_by_date(request):
             amount_to = amount.get(iso_to)
             rate_from = rate.get(iso_from)
             rate_to = rate.get(iso_to)
-            number = request.POST.get('number')
+            count = request.POST.get('count')
 
-            convert_value = convert_money(number, rate_from, amount_from, rate_to, amount_to)
+            convert_value = convert_money(count, rate_from, amount_from, rate_to, amount_to)
 
-            print("=========================================== START =================================================")
-            print(f'number = {number}')
+            print("============================================= START ===============================================")
+            print(f'count = {count}')
             print(f'iso_from = {iso_from}')
             print(f'iso_to = {iso_to}')
             print(f'amount_from = {amount_from}')
             print(f'amount_to = {amount_to}')
             print(f'rate_from = {rate_from}')
             print(f'rate_to = {rate_to}')
-            print("================================================ END ==============================================")
+            print("============================================== END ================================================")
 
-    print('date=', date)
     context = {
         'date': date,
         'data': data,
         'iso': iso,
         'amount': amount,
         'rate': rate,
-        'number': number,
+        'count': count,
         'difference': difference,
         'convert_value': convert_value,
     }
@@ -114,3 +125,36 @@ def exchange_rates_by_date_by_iso(date, iso):
     client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
     result = client.service.ExchangeRatesByDateByISO(date, iso)
     return result
+
+
+def exchange_rate(request):
+    obj = Exchange.objects.last()
+
+    date = datetime.now().strftime('%Y-%m-%d')
+    iso = str(obj.iso[1:-1]).replace("'", "").split(', ')
+    count = 1
+    result = ''
+
+    if request.POST:
+        date = datetime.strptime(request.POST.get('date'), "%Y-%m-%d")
+        iso = request.POST.get('iso', '')
+        count = request.POST.get('count', '')
+
+        data = exchange_rates_by_date_by_iso(date, iso)
+
+        rate = data.Rates.ExchangeRate[0]['Rate']
+        amount = data.Rates.ExchangeRate[0]['Amount']
+
+        result = money_converter(count, rate, amount)
+
+        iso = str(obj.iso[1:-1]).replace("'", "").split(', ')
+        date = request.POST.get('date')
+
+    context = {
+        'date': date,
+        'iso': iso,
+        'count': count,
+        'result': result,
+    }
+
+    return render(request, 'by_date_by_iso.html', context)
