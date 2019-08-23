@@ -29,7 +29,6 @@ def convert_money(value, rate1, amount1, rate2, amount2):
         return "Rate_2 is 0.0000"
 
 
-# get data from SOAP
 def exchange_rates_by_date(request):
     date = datetime.now().strftime('%Y-%m-%d')
     iso = []
@@ -38,6 +37,7 @@ def exchange_rates_by_date(request):
     rate = {}
     difference = {}
     convert_value = ''
+    number = ''
 
     # data = Exchange.objects.last()
     # iso = data.iso
@@ -46,9 +46,10 @@ def exchange_rates_by_date(request):
 
     if request.POST:
         if request.POST.get('date'):
-            date = request.POST.get('date') #datetime.strptime(request.POST.get('date'), "%Y-%m-%d")
+            fdate = datetime.strptime(request.POST.get('date'), "%Y-%m-%d")
             client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
-            result = client.service.ExchangeRatesByDate(date)
+            result = client.service.ExchangeRatesByDate(fdate)
+            date = request.POST.get('date')
 
             list_rates = list(result.Rates.ExchangeRate)
             for i, val in enumerate(list_rates, 1):
@@ -101,6 +102,7 @@ def exchange_rates_by_date(request):
         'iso': iso,
         'amount': amount,
         'rate': rate,
+        'number': number,
         'difference': difference,
         'convert_value': convert_value,
     }

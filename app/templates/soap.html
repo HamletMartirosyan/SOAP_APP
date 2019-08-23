@@ -61,7 +61,7 @@
 
                 <span class="inputs">
                     <label for="number">Convert</label>
-                    <input type="text" name="number" id="number" class="inputs">
+                    <input type="text" name="number" id="number" class="inputs" value="{{ number }}">
                         <select name="select_from" id="select_from">
                             {% for val in iso %}
                                 <option value="{{ val }}"> {{ val }}</option>
