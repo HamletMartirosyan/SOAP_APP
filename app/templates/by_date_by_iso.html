@@ -64,7 +64,9 @@
                                 '</tr>';
                             for (var val in Object.values(rates)) {
                                 response += '<tr>';
+                                for (var i = 0; i < val.length; i++) {
                                     response += '<td>' + val[i] + '</td>'
+                                }
                                 response += '</tr>';
                             }
                             response += '</table>';
