@@ -33,10 +33,10 @@
             {% endif %}
         </form>
     </div>
-    <div class="row" id="response">
+
+    <div id="response">
 
     </div>
-
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -52,8 +52,6 @@
                         contentType: 'application/json; charset=utf-8',
 
                         success: function (rates) {
-                            console.log(rates);
-
                             var response =
                                 '<table class="table thead-dark">' +
                                     '<tr class="thead-dark">' +
@@ -71,6 +69,9 @@
                             }
                             response += '</table>';
 
+                            var attr = document.createAttribute('class');
+                            attr.value = 'row';
+                            document.getElementById('response').setAttributeNode(attr);
                             document.getElementById('response').innerHTML = response;
                         },
                         errors: function (e) {
