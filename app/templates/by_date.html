@@ -1,0 +1,77 @@
+
+
+{% include 'index.html' %}
+
+{% block by_date_by_iso %}
+    <div class="container">
+        <div class="row">
+            <form method="post" name="get_data">
+                {% csrf_token %}
+
+                <span class="inputs">
+                    <label for="date">Enter date</label>
+                    <input type="date" value="{{ date }}" name="date" id="date">
+                </span>
+                <span class="inputs">
+                <input type="submit" value="Get values" id="get_values" class="btn btn-success">
+            </span>
+            </form>
+        </div>
+
+        {% if not iso|length == 0 %}
+            <div class="row">
+                <form method="post" name="convert_form">
+                    {% csrf_token %}
+
+                    <span class="inputs">
+                        <label for="number">Convert</label>
+                        <input type="text" name="number" id="number" class="inputs" value="{{ number }}">
+                            <select name="select_from" id="select_from">
+                                {% for val in iso %}
+                                    <option value="{{ val }}"> {{ val }}</option>
+                                {% endfor %}
+                            </select>
+                    </span>
+
+                    <span class="inputs">
+                        <label for="select_to">to</label>
+                            <select name="select_to" id="select_to">
+                                {% for val in iso %}
+                                    <option value="{{ val }}"> {{ val }}</option>
+                                {% endfor %}
+                            </select>
+                    </span>
+
+                    <input type="submit" id="convert" class="btn btn-success" value="Convert">
+
+                    {# <a id="convert" href="/convert" class="btn btn-success">Convert</a> >#}
+                </form>
+
+                {% if convert_value != '' %}
+                    <span id="convert_value" class="result">
+                    {{ convert_value }}
+                </span>
+                {% endif %}
+
+                {% if not data is None %}
+                    <table class="table thead-dark">
+                        <tr class="thead-dark">
+                            <th scope="col">ISO</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Rate</th>
+                            <th scope="col">Difference</th>
+                        </tr>
+                        {% for val in data.values %}
+                            <tr>
+                                <td>{{ val.ISO }}</td>
+                                <td>{{ val.Amount }}</td>
+                                <td>{{ val.Rate }}</td>
+                                <td>{{ val.Difference }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

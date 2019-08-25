@@ -1,7 +1,114 @@
+import json
+from django.http import JsonResponse
 from django.shortcuts import render
 from datetime import datetime
 from .models import Exchange
 from zeep import Client
+
+
+def get_rates_by_date(date):
+    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
+    return client.service.ExchangeRatesByDate(date)
+
+
+def get_rates_by_date_by_iso(date, iso):
+    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
+    return client.service.ExchangeRatesByDateByISO(date, iso)
+
+
+def get_rates_latest():
+    date = datetime.now().strftime('%Y-%m-%d')
+    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
+    return client.service.ExchangeRatesLatest(date)
+
+
+def get_rates_latest_by_iso(iso):
+    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
+    return client.service.ExchangeRatesLatestByISO(iso)
+
+
+def get_iso_codes():
+    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
+    return client.service.ISOCodes()
+
+
+def index(request):
+    return render(request, 'index.html', {})
+
+
+def exchange_rates_by_date_by_iso(request):
+    iso_code = ''
+    iso = get_iso_codes()
+    date = datetime.now().strftime('%Y-%m-%d')
+    count = ''
+    convert_value = ''
+
+    post = request.POST
+    if post:
+        date = post.get('date')
+        count = post.get('count')
+        iso_code = post.get('iso')
+
+        rates = get_rates_by_date_by_iso(date, iso_code).Rates.ExchangeRate[0]
+        amount = rates.Amount
+        rate = rates.Rate
+
+        print("==================== START =====================")
+        print(f'POST = {post}')
+        print(f'iso = {iso_code}')
+        print(f'date = {date}')
+        print(f'rates = {rates}')
+        print(f'amount = {amount}')
+        print(f'rate = {rate}')
+        print("===================== END =======================")
+
+        convert_value = convert_by_date_by_iso(
+            float(count),
+            float(rate),
+            float(amount))
+
+    context = {
+        'iso': iso,
+        'date': date,
+        'count': count,
+        'iso_code': iso_code,
+        'convert_value': convert_value,
+    }
+    return render(request, 'by_date_by_iso.html', context)
+
+
+def exchange_rates_by_date(request):
+    date = request.GET['date']
+    data = get_rates_by_date(date).Rates.ExchangeRate
+    iso = get_iso_codes()
+
+    rates = {}
+    for i, item in enumerate(data):
+        rates[iso[i]] = {
+            'ISO': item.ISO,
+            'Amount': item.Amount,
+            'Rate': item.Rate,
+            'Difference': item.Difference,
+        }
+
+    return JsonResponse(rates)
+
+
+def exchange_rates_latest(request):
+    pass
+
+
+def exchange_rates_latest_by_iso(request):
+    pass
+
+
+def exchange_rates_iso_codes(request):
+    pass
+
+
+def convert_by_date_by_iso(count, rate, amount):
+    num = count * rate / amount
+    return round(num, 3)
 
 
 def str_to_dict(string):
@@ -14,7 +121,7 @@ def str_to_dict(string):
     return result
 
 
-def convert_money(value, rate1, amount1, rate2, amount2):
+def convert_two_rates_by_date(value, rate1, amount1, rate2, amount2):
     value = float(value)
     rate1 = float(rate1)
     amount1 = float(amount1)
@@ -27,134 +134,3 @@ def convert_money(value, rate1, amount1, rate2, amount2):
         return round(value * num1 / num2, 4)
     else:
         return "Rate_2 is 0.0000"
-
-
-def money_converter(count, rate, amount):
-    count = float(count)
-    rate = float(rate)
-    amount = float(amount)
-    print(f'\n\ncount ={count}\n\nRate = {rate}, Amount = {amount} \n\n')
-
-    num = rate / amount
-    result = round(count * num, 2)
-
-    return result
-
-
-def exchange_rates_by_date(request):  #
-    date = datetime.now().strftime('%Y-%m-%d')
-    iso = []
-    amount = {}
-    data = {}
-    rate = {}
-    difference = {}
-    convert_value = ''
-    count = ''
-
-    # data = Exchange.objects.last()
-    # iso = data.iso
-    # print('ISO =', iso)
-    # print('Exchange_rates_by_date_by_iso',exchange_rates_by_date_by_iso(date, 'USD'))
-
-    if request.POST:
-        if request.POST.get('date'):
-            fdate = datetime.strptime(request.POST.get('date'), "%Y-%m-%d")
-            client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
-            result = client.service.ExchangeRatesByDate(fdate)
-            date = request.POST.get('date')
-
-            list_rates = list(result.Rates.ExchangeRate)
-            for i, val in enumerate(list_rates, 1):
-                data[i] = val
-
-            for val in data.values():
-                iso.append(val.ISO)
-            for val in data.values():
-                amount[val.ISO] = val.Amount
-            for val in data.values():
-                rate[val.ISO] = val.Rate
-            for val in data.values():
-                difference[val.ISO] = val.Difference
-
-            exchange = Exchange(iso=iso, amount=amount, rate=rate, difference=difference, date=date)
-            exchange.save()
-
-        elif request.POST.get('count'):
-            query = Exchange.objects.last()
-
-            iso = str(query.iso[1:-1]).replace("'", "").split(', ')
-            amount = str_to_dict(query.amount)
-            rate = str_to_dict(query.rate)
-            difference = str_to_dict(query.difference)
-
-            iso_from = request.POST.get('select_from')
-            iso_to = request.POST.get('select_to')
-            amount_from = amount.get(iso_from)
-            amount_to = amount.get(iso_to)
-            rate_from = rate.get(iso_from)
-            rate_to = rate.get(iso_to)
-            count = request.POST.get('count')
-
-            convert_value = convert_money(count, rate_from, amount_from, rate_to, amount_to)
-
-            print("============================================= START ===============================================")
-            print(f'count = {count}')
-            print(f'iso_from = {iso_from}')
-            print(f'iso_to = {iso_to}')
-            print(f'amount_from = {amount_from}')
-            print(f'amount_to = {amount_to}')
-            print(f'rate_from = {rate_from}')
-            print(f'rate_to = {rate_to}')
-            print("============================================== END ================================================")
-
-    context = {
-        'date': date,
-        'data': data,
-        'iso': iso,
-        'amount': amount,
-        'rate': rate,
-        'count': count,
-        'difference': difference,
-        'convert_value': convert_value,
-    }
-
-    return render(request, 'soap.html', context)
-
-
-def exchange_rates_by_date_by_iso(date, iso):
-    client = Client('http://api.cba.am/exchangerates.asmx?wsdl')
-    result = client.service.ExchangeRatesByDateByISO(date, iso)
-    return result
-
-
-def exchange_rate(request):
-    obj = Exchange.objects.last()
-
-    date = datetime.now().strftime('%Y-%m-%d')
-    iso = str(obj.iso[1:-1]).replace("'", "").split(', ')
-    count = 1
-    result = ''
-
-    if request.POST:
-        date = datetime.strptime(request.POST.get('date'), "%Y-%m-%d")
-        iso = request.POST.get('iso', '')
-        count = request.POST.get('count', '')
-
-        data = exchange_rates_by_date_by_iso(date, iso)
-
-        rate = data.Rates.ExchangeRate[0]['Rate']
-        amount = data.Rates.ExchangeRate[0]['Amount']
-
-        result = money_converter(count, rate, amount)
-
-        iso = str(obj.iso[1:-1]).replace("'", "").split(', ')
-        date = request.POST.get('date')
-
-    context = {
-        'date': date,
-        'iso': iso,
-        'count': count,
-        'result': result,
-    }
-
-    return render(request, 'by_date_by_iso.html', context)

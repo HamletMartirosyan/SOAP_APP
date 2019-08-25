@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ request.GET }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        .container {
+            background-color: #e6ebeb;
+        }
+
+        .inputs {
+            padding: 2px 5px;
+            margin: 15px 25px;
+        }
+
+        .row {
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 1px;
+            border-radius: 10px;
+            border: solid #005541 2px;
+        }
+
+        table {
+            margin-top: 30px;
+        }
+
+        .result {
+            color: #182767;
+            font-size: 20px;
+            margin: 5px 0 0 20px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            border: #174983 solid 2px;
+            background-color: #edfffc;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-xl-3"><a href="/by_date_by_iso/" class="btn btn-primary">Rates By Date By ISO</a></div>
+        <div class="col-xl-2"><a href="/by_date/" class="btn btn-primary">Rates By Date</a></div>
+        <div class="col-xl-2"><a href="/latest/" class="btn btn-primary">Rates Latest</a></div>
+        <div class="col-xl-3"><a href="/latest_by_iso/" class="btn btn-primary">Rates Latest By ISO</a></div>
+        <div class="col-xl-2"><a href="/iso_odes/" class="btn btn-primary">ISO Codes</a></div>
+    </div>
+
+    {% block by_date %}
+    {% endblock %}
+
+    {% block by_date_by_iso %}
+    {% endblock %}
+
+    {% block latest %}
+    {% endblock %}
+
+    {% block latest_by_iso %}
+    {% endblock %}
+
+    {% block iso_codes %}
+    {% endblock %}
+</div>
+
+</body>
+</html>
