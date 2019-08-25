@@ -61,11 +61,11 @@
                                     '<th scope="col">Amount</th>' +
                                     '<th scope="col">Rate</th>' +
                                     '<th scope="col">Difference</th>' +
-                                    '</tr>';
-                            for (var val in Object.values(rates)) {
+                                '</tr>';
+                            for (var val in rates) {
                                 response += '<tr>';
-                                for (var item in Object.values(val)) {
-                                    response += '<td>' + val + '</td>';
+                                for (var item in rates[val]) {
+                                    response += '<td>' + rates[val][item] + '</td>';
                                 }
                                 response += '</tr>';
                             }
