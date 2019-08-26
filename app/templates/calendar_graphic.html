@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+
+
+{% block calendar_graphic %}
+
+    <div class="row">
+        <form method="post" name="get_data" id="get_data">
+            {% csrf_token %}
+
+            <span class="inputs">
+                    <label for="star_date">Start date</label>
+                    <input type="date" value="{{ star_date }}" name="star_date" id="star_date">
+            </span>
+            <span class="inputs">
+                    <label for="end_date">End date</label>
+                    <input type="date" value="{{ end_date }}" name="end_date" id="end_date">
+            </span>
+
+            <span class="inputs">
+                <label for="count">Start</label>
+                <select name="iso" id="iso">
+                    {% for val in iso %}
+                        <option value="{{ val }}"
+                                {% if val == iso_code %} selected {% endif %} >
+                            {{ val }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </span>
+
+            <span class="inputs">
+                    <input type="submit" value="Draw" id="draw" class="btn btn-success">
+                </span>
+
+            <div id="chart">
+
+            </div>
+
+        </form>
+    </div>
+
+
+
+{% endblock %}

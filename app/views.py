@@ -1,9 +1,9 @@
-import json
 from django.http import JsonResponse
 from django.shortcuts import render
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import Exchange
 from zeep import Client
+import json
 
 
 def get_rates_by_date(date):
@@ -45,7 +45,7 @@ def exchange_rates_by_date_by_iso(request):
 
     post = request.POST
     if post:
-        date = post.get('date')
+        date = datetime.strptime(post.get('date'), "%Y-%m-%d")  # post.get('date')
         count = post.get('count')
         iso_code = post.get('iso')
 
@@ -53,14 +53,7 @@ def exchange_rates_by_date_by_iso(request):
         amount = rates.Amount
         rate = rates.Rate
 
-        print("==================== START =====================")
-        print(f'POST = {post}')
-        print(f'iso = {iso_code}')
-        print(f'date = {date}')
-        print(f'rates = {rates}')
-        print(f'amount = {amount}')
-        print(f'rate = {rate}')
-        print("===================== END =======================")
+        date = post.get('date')
 
         convert_value = convert_by_date_by_iso(
             float(count),
@@ -78,7 +71,7 @@ def exchange_rates_by_date_by_iso(request):
 
 
 def exchange_rates_by_date(request):
-    date = request.GET['date']
+    date = datetime.strptime(request.GET.get('date'), "%Y-%m-%d")  # request.GET['date']
     data = get_rates_by_date(date).Rates.ExchangeRate
     iso = get_iso_codes()
 
@@ -92,6 +85,52 @@ def exchange_rates_by_date(request):
         }
 
     return JsonResponse(rates)
+
+
+def view_calendar_graphic(request):
+    iso = get_iso_codes()
+    start_date = datetime.strftime(datetime.now() - timedelta(7), '%Y-%m-%d')
+    end_date = datetime.now().strftime("%Y-%m-%d")
+    rates = {}
+    ctx = {}
+
+    if request.POST:
+        start_date = datetime.strptime(request.POST.get('date1'), "%Y-%m-%d")  # request.POST['date']
+        end_date = datetime.strptime(request.POST.get('date2'), "%Y-%m-%d")  # request.POST['date']
+
+        if start_date != '' and end_date != '':
+            delta = end_date - start_date
+
+            dates = []
+            for i in range(delta.days + 1):
+                dates.append(start_date + timedelta(days=i))
+                print(dates[i])
+
+            data = {}
+            for i, date in enumerate(dates):
+                data[i] = get_rates_by_date(date).Rates.ExchangeRate
+
+            iso = get_iso_codes()
+
+            r = {}
+
+            for i, d in enumerate(data):
+                for j, item in enumerate(d):
+                    r[iso[j]] = {
+                        'ISO': item.ISO,
+                        'Amount': item.Amount,
+                        'Rate': item.Rate,
+                        'Difference': item.Difference,
+                    }
+                rates[dates[i]] = r[iso[i]]
+            print(f'rates => {rates}')
+    ctx = {
+        'iso': iso,
+        'start_date': start_date,
+        'end_date': end_date,
+        'rates': rates,
+    }
+    return render(request, 'calendar_graphic.html', ctx)
 
 
 def exchange_rates_latest(request):
