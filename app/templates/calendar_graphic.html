@@ -1,23 +1,28 @@
 {% extends 'index.html' %}
 
 
+{% block page_title %}
+    Calendar_graphic
+{% endblock %}
+
+
 {% block calendar_graphic %}
 
     <div class="row">
-        <form method="post" name="get_data" id="get_data">
+        <form method="post" name="draw_form" id="draw_form">
             {% csrf_token %}
 
             <span class="inputs">
-                    <label for="star_date">Start date</label>
-                    <input type="date" value="{{ star_date }}" name="star_date" id="star_date">
+                <label for="start_date">Start date</label>
+                <input type="date" value="{{ start_date }}" name="start_date" id="start_date">
             </span>
             <span class="inputs">
-                    <label for="end_date">End date</label>
-                    <input type="date" value="{{ end_date }}" name="end_date" id="end_date">
+                <label for="end_date">End date</label>
+                <input type="date" value="{{ end_date }}" name="end_date" id="end_date">
             </span>
 
             <span class="inputs">
-                <label for="count">Start</label>
+                <label for="iso">ISO</label>
                 <select name="iso" id="iso">
                     {% for val in iso %}
                         <option value="{{ val }}"
@@ -29,16 +34,26 @@
             </span>
 
             <span class="inputs">
-                    <input type="submit" value="Draw" id="draw" class="btn btn-success">
-                </span>
+                <span id="draw" class="btn btn-success" onclick="Draw()"> Draw </span>
+            </span>
 
-            <div id="chart">
+            {% if rates %}
+                <div id="chart">
+                    {{ rates }}
+                </div>
+            {% endif %}
 
-            </div>
+            <!-- GOOGLE CHARTS -->
+
+
+            <div id="curve_chart"></div>
+
 
         </form>
     </div>
 
+    <script type="text/javascript">
 
 
+    </script>
 {% endblock %}
